@@ -14,7 +14,7 @@
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
-int read_data(int* arr);				// 读取输入生成符号表
+long long read_data(int* arr);				// 读取输入生成符号表
 void output_compressed_content(data_buffer* symbols);	// 输出
 
 int main(int argc, char** argv) {
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 		}
 
 		int num_of_char_table[maxCharsNum] = { 0 }; // 存储每个字符的数量
-		int tnum;									// 字符总数
+		long long  tnum;							// 字符总数
 		tnum = read_data(num_of_char_table);		// 读取数据
 
 		// 生成huaffman树
@@ -90,6 +90,25 @@ int main(int argc, char** argv) {
 		double avg_code_len;
 	 	avg_code_len = generate_symbole_table(head, ar, symbols);	// 通过huffman树生成符号表, 并写入文件
 		output_extra_bit_len(symbols, num_of_char_table);	// 将最后一个缓冲区的位数写入文件
+
+
+		int symbcount = 0;
+		for(si = 0; si < maxCharsNum; si++){
+			if(symbols[si].len > 0){
+				symbcount += 2 + symbols[si].len;
+				if(si < 10){
+					symbcount += 1;
+				}
+				else if(si < 100){
+					symbcount += 2;
+				}
+				else{
+					symbcount += 3;
+				}
+			}
+		}
+		symbcount++;
+		printf("Size of symbol table:\t%d\n", symbcount);
 
 		clear_huffman_tree(head);					// 释放内存
 
@@ -126,9 +145,9 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-int read_data(int* arr)
+long long read_data(int* arr)
 {
-	int count = 0, err_count = 0;
+	long long count = 0, err_count = 0;
 	int ch;
 	uchar tc;
 	while ((ch = fgetc(infile)) != EOF) {
@@ -140,10 +159,24 @@ int read_data(int* arr)
 		count++;
 		arr[tc]++;
 	}
+	double k = count;
+	if(count < 1000){
+		printf("Size of input file:\t%-1lfB\n",k);
+	}
+	else if (count < 1000000){
+		printf("Size of input file:\t%-3lfKB\n", k/ 1000);
+	}
+	else if(count < 1000000000){
+		printf("Size of input file:\t%-3lfMB\n", k / 1000000);
+	}
+	else{
+		printf("Size of input file:\t%-3lfGB\n", k / 1000000000);
+	}
 	return count;
 }
 
 void output_compressed_content(data_buffer*symbols) {
+	long long tnum = 0;
 	// 缓冲需要输出的内容
 	data_buffer* temp = malloc(sizeof(data_buffer));
 	// 缓冲溢出的内容
@@ -164,6 +197,7 @@ void output_compressed_content(data_buffer*symbols) {
 			int k;
 			for (k = 0; k < length_in_bytes(temp); k++) {
 				fputc((char)temp->databuf[k], outfile);
+				tnum++;
 			}
 			fflush(outfile);			// 清空缓冲区
 			db_copy(temp, newbuf);
@@ -177,6 +211,7 @@ void output_compressed_content(data_buffer*symbols) {
 		int k;
 		for (k = 0; k < length_in_bytes(temp); k++) {
 			fputc((char)temp->databuf[k], outfile);
+			tnum++;
 		}
 	}
 	if (temp != NULL) {
@@ -186,5 +221,6 @@ void output_compressed_content(data_buffer*symbols) {
 		free(newbuf);
 	}
 	fflush(outfile);				// 清空缓冲区
+	printf("Size of output file:\t%d\n", tnum);
 }
 
