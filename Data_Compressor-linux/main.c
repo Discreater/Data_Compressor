@@ -65,13 +65,11 @@ int main(int argc, char** argv) {
 	}
 
 	if(compress){
-		// 输入、输出重定向
-		fclose(stdin);
-		if ((freopen(in_file_name, "rb", stdin)) == NULL) {
+		// 打开输入输出文件
+		if ((infile = fopen(in_file_name, "rb")) == NULL) {
 			fprintf(stderr, "Error: can't open %s", in_file_name);
 		}
-		fclose(stdout);
-		if (freopen(out_file_name, "wb", stdout) == NULL) {
+		if ((outfile = fopen(out_file_name, "wb")) == NULL) {
 			fprintf(stderr, "Error: can't write to %s", out_file_name);
 		}
 
@@ -89,34 +87,29 @@ int main(int argc, char** argv) {
 		for (si = 0; si < maxCharsNum; si++) {		// 初始化符号表
 			db_flush(symbols + si);
 		}
-		
-		generate_symbole_table(head, ar, symbols);	// 通过huffman树生成符号表, 并写入文件
+		double avg_code_len;
+	 	avg_code_len = generate_symbole_table(head, ar, symbols);	// 通过huffman树生成符号表, 并写入文件
 		output_extra_bit_len(symbols, num_of_char_table);	// 将最后一个缓冲区的位数写入文件
 
 		clear_huffman_tree(head);					// 释放内存
 
-		// 输入、输出重定向
-		fclose(stdin);
-		if (freopen(in_file_name, "rb", stdin) == NULL) {
-			fprintf(stderr, "Error: can't open %s!", in_file_name);
+		fclose(infile);
+		// 重新打开输入文件
+		if ((infile = fopen(in_file_name, "rb")) == NULL) {
+			fprintf(stderr, "Error: can't open %s", in_file_name);
 		}
-		fclose(stdout);
-		if (freopen(out_file_name, "ab", stdout) == NULL) {		// 此处为从文件结尾开始写入内容
-			fprintf(stderr, "Error: can't write to %s", out_file_name);
-		}
-
+		
 		output_compressed_content(symbols);			// 根据符号表，读取输入，输出压缩后的内容
-		fclose(stdin);
-		fclose(stdout);
+		fclose(infile);
+		fclose(outfile);
+		printf("%lf\n", avg_code_len);
 	}
 	else {
-		// 输入、输出重定向
-		fclose(stdin);
-		if (freopen(in_file_name, "rb", stdin) == NULL) {
-			fprintf(stderr, "Error: can't read %s", in_file_name);
+		// 打开输入输出文件
+		if ((infile = fopen(in_file_name, "rb")) == NULL) {
+			fprintf(stderr, "Error: can't open %s", in_file_name);
 		}
-		fflush(stdout);
-		if (freopen(out_file_name, "wb", stdout) == NULL) {
+		if ((outfile = fopen(out_file_name, "wb")) == NULL) {
 			fprintf(stderr, "Error: can't write to %s", out_file_name);
 		}
 
@@ -136,8 +129,10 @@ int main(int argc, char** argv) {
 int read_data(int* arr)
 {
 	int count = 0, err_count = 0;
+	int ch;
 	uchar tc;
-	while ((tc = (uchar)(char)getchar()) != 255u) {
+	while ((ch = fgetc(infile)) != EOF) {
+		tc = (uchar)(char)ch;
 		if (tc >= maxCharsNum || tc < 0u) {
 			fprintf(stderr, "ERROR: wrong char %d", err_count++);
 			exit(-1);
@@ -156,8 +151,10 @@ void output_compressed_content(data_buffer*symbols) {
 	// 初始化
 	db_flush(temp);
 	db_flush(newbuf);
+	int ch;
 	uchar tc;
-	while ((tc = (uchar)(char)getchar()) != 255u) {
+	while ((ch = fgetc(infile)) != -1) {
+		tc = (uchar)(char)ch;
 		if (tc >= maxCharsNum || tc < 0u) {
 			fprintf(stderr, "Error: wrong char");
 			exit(-1);
@@ -166,9 +163,9 @@ void output_compressed_content(data_buffer*symbols) {
 		if (newbuf->len != 0) {
 			int k;
 			for (k = 0; k < length_in_bytes(temp); k++) {
-				putchar((char)temp->databuf[k]);
+				fputc((char)temp->databuf[k], outfile);
 			}
-			fflush(stdout);			// 清空缓冲区
+			fflush(outfile);			// 清空缓冲区
 			db_copy(temp, newbuf);
 			db_flush(newbuf);
 		}
@@ -179,7 +176,7 @@ void output_compressed_content(data_buffer*symbols) {
 	if (temp->len != 0) {
 		int k;
 		for (k = 0; k < length_in_bytes(temp); k++) {
-			putchar((char)temp->databuf[k]);
+			fputc((char)temp->databuf[k], outfile);
 		}
 	}
 	if (temp != NULL) {
@@ -188,6 +185,6 @@ void output_compressed_content(data_buffer*symbols) {
 	if (newbuf != NULL) {
 		free(newbuf);
 	}
-	fflush(stdout);				// 清空缓冲区
+	fflush(outfile);				// 清空缓冲区
 }
 

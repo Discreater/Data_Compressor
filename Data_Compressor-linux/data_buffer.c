@@ -1,5 +1,6 @@
 #include "data_buffer.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 int length_in_chars(data_buffer* db)

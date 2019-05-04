@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "huffman.h"
 #include "data_buffer.h"
 
@@ -83,12 +84,13 @@ node* generate_huffman_tree(int* char_table, int tnum)
 	return head;
 }
 
-void generate_symbole_table(node * head, int* ar, data_buffer * symbols)
+double generate_symbole_table(node * head, int* ar, data_buffer * symbols)
 {
 	avg = 0;
 	travel_huffman_tree(head->left, 0, LEFT, ar, symbols);
 	travel_huffman_tree(head->right, 0, RIGHT, ar, symbols);
-	printf("\n");
+	fprintf(outfile, "\n");
+	return avg;
 }
 
 void output_extra_bit_len(data_buffer* symbols, int* table) {
@@ -99,21 +101,21 @@ void output_extra_bit_len(data_buffer* symbols, int* table) {
 		}
 	}
 	re = (re == 0) ? 8 : re;
-	printf("%d\n", re);
+	fprintf(outfile, "%d\n", re);
 }
 
-double travel_huffman_tree(node* fnode, int len, int zo, int* ar, data_buffer* symbols)
+void travel_huffman_tree(node* fnode, int len, int zo, int* ar, data_buffer* symbols)
 {
 	ar[len++] = zo;
 	if (fnode->left == NULL) {
 		// 输出符号表到文件中
-		printf(" ");
+		fprintf(outfile, " ");
 		int i;
 		for (i = 0; i < len; i++) {
-			printf("%d", ar[i]);
+			fprintf(outfile, "%d", ar[i]);
 		}
 		uchar tc = fnode->c;
-		printf(" %u", tc);
+		fprintf(outfile, " %u", tc);
 
 		avg += fnode->value * len;
 		db_init(symbols + fnode->c, ar, len);

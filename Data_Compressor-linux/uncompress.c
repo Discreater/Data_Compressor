@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "uncompress.h"
 #include "huffman.h"
 
@@ -11,7 +13,7 @@ node* build_huffman_tree(void)
 	int c;
 	char tc;
 	do {
-		scanf("%s%d%c", ar, &c, &tc);
+		fscanf(infile, "%s%d%c", ar, &c, &tc);
 		int i;
 		node* tmp = head;
 		for (i = 0; ar[i] != '\0'; i++) {
@@ -49,19 +51,18 @@ node* build_huffman_tree(void)
 int get_extra_bit_len(void) {
 	int len = 0;
 	char tmp;
-	scanf("%d%c", &len, &tmp);
+	fscanf(infile, "%d%c", &len, &tmp);
 	return len;
 }
 
 void decode(node * head, int extra_len) {
 	// 增加一字节缓冲，以便处理最后一字节
 	int ch, cht;
-	int current_bit;
 	node* root = head;
 	cht = getchar();
 	ch = cht;
 	int i, bit0;
-	while ((cht = getchar()) != EOF) {
+	while ((cht = fgetc(infile)) != EOF) {
 		for (i = 0; i < 8; i++) {
 			bit0 = ch & 1;
 			if (bit0 == LEFT) {		// 向左
@@ -71,9 +72,9 @@ void decode(node * head, int extra_len) {
 				head = head->right;
 			}
 			if (head->c != 0) {		// 若为叶子结点
-				putchar((char)(head->c));
+				fputc((char)(head->c), outfile);
 				if (head->c == '\n') {
-					fflush(stdout);
+					fflush(outfile);
 				}
 				head = root;
 			}
@@ -91,14 +92,14 @@ void decode(node * head, int extra_len) {
 			head = head->right;
 		}
 		if (head->c != 0) {		// 若为叶子结点
-			putchar((char)(head->c));
+			fputc((char)(head->c), outfile);
 			if (head->c == '\n') {
-				fflush(stdout);
+				fflush(outfile);
 			}
 			head = root;
 		}
 		ch = ch >> 1;
 	}
 	ch = cht;
-	fflush(stdout);
+	fflush(outfile);
 }
