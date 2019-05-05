@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+
 #include "decompress.h"
 #include "huffman.h"
 
@@ -53,6 +55,16 @@ int get_extra_bit_len(void) {
 	char tmp;
 	fscanf(infile, "%d%c", &len, &tmp);
 	return len;
+}
+
+void determine_mode(char* file_name) {
+	unsigned mode;
+	char tmp;
+	fscanf(infile, "%u%c", &mode, &tmp);
+	if (chmod(file_name, mode) == -1) {
+		// 失败
+		fprintf(stderr, "Error: set mode error.\n");
+	}
 }
 
 void decode(node * head, int extra_len) {

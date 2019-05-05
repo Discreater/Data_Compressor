@@ -93,17 +93,6 @@ double generate_symbole_table(node * head, int* ar, data_buffer * symbols)
 	return avg;
 }
 
-void output_extra_bit_len(data_buffer* symbols, int* table) {
-	int i, re = 0;
-	for (i = 0; i < maxCharsNum; i++) {
-		if (table[i] > 0) {
-			re = (re + (table[i] * symbols[i].len) % 8) % 8;
-		}
-	}
-	re = (re == 0) ? 8 : re;
-	fprintf(outfile, "%d\n", re);
-}
-
 void travel_huffman_tree(node* fnode, int len, int zo, int* ar, data_buffer* symbols)
 {
 	ar[len++] = zo;
