@@ -38,12 +38,12 @@
     <ClCompile Include="data_buffer.c" />
     <ClCompile Include="huffman.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="uncompress.c" />
+    <ClCompile Include="decompress.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_buffer.h" />
     <ClInclude Include="huffman.h" />
-    <ClInclude Include="uncompress.h" />
+    <ClInclude Include="decompress.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Usage.txt" />

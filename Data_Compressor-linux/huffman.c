@@ -16,8 +16,8 @@ void node_init(node* nnode, uchar c, double v)
 void node_insert(node ** head, node* ins)
 {
 	if (ins == NULL) {
-		printf("Error: insert a null pointer");
-		return;
+		fprintf(stderr, "Error: insert a null pointer.\n");
+		exit(-1);
 	}
 	if (*head == NULL) {
 		*head = ins;
@@ -49,15 +49,15 @@ node* pop(node** head)
 	return tmp;
 }
 
-node* generate_huffman_tree(int* char_table, int tnum)
+node* generate_huffman_tree(int* char_table, long long tnum)
 {
 	node* head = NULL;
-	uchar i;
-	for (i = 0; i != maxCharsNum - 1; i++) {
+	int i;
+	for (i = 0; i < maxCharsNum; i++) {
 		if (char_table[i] > 0) {
 			// 若该符号出现过，则生成新结点，并插入优先队列中
 			node* nnode = malloc(sizeof(node));
-			node_init(nnode, i, (double)char_table[i] / tnum);
+			node_init(nnode, (uchar)(unsigned)i, (double)char_table[i] / tnum);
 			node_insert(&head, nnode);
 		}
 	}

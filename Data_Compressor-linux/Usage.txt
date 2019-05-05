@@ -1,9 +1,9 @@
 Usage:	./Data_Compressor [OPTIONS] [FILES]
-  -i [file]	The input file (finished)
-  -o [file]	The output file (finished)
+  -i [file]	The input file
+  -o [file]	The output file
   -n		No terminal print
   -h		Print this help information
-  -p		Compress the input file [defalut compress] (finished)
+  -p		Compress the input file [defalut compress]
   -u		Uncompress the input file
 -----------compressed file format---------
 The first len of the compressed file(CPF) is the symbol table, which begin with a space then the huffman code then the usigned value of the char.
@@ -29,3 +29,6 @@ That's how we store the code.
 
 -o /home/alkaid/projects/Data_Compressor-linux/tmain.c -i /home/alkaid/projects/Data_Compressor-linux/cpraw -u
 -i /home/alkaid/projects/Data_Compressor-linux/main.c -o /home/alkaid/projects/Data_Compressor-linux/cpraw -p
+
+-o pData_Compressor-linux.out -i cpData_Compressor-linux.out -u
+-i Data_Compressor-linux.out -o cpData_Compressor-linux.out -p

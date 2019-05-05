@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "uncompress.h"
+#include "decompress.h"
 #include "huffman.h"
 
 
@@ -34,7 +34,7 @@ node* build_huffman_tree(void)
 				head = head->right;
 			}
 			else {
-				fprintf(stderr, "Error: unknown file head");
+				fprintf(stderr, "Error: unknown file head.\n");
 				exit(-1);
 			}
 			// 叶子结点
@@ -71,7 +71,7 @@ void decode(node * head, int extra_len) {
 			else {					// 向右
 				head = head->right;
 			}
-			if (head->c != 0) {		// 若为叶子结点
+			if (head->left == NULL || head->right == NULL) {		// 若为叶子结点
 				fputc((char)(head->c), outfile);
 				if (head->c == '\n') {
 					fflush(outfile);
@@ -91,7 +91,7 @@ void decode(node * head, int extra_len) {
 		else {					// 向右
 			head = head->right;
 		}
-		if (head->c != 0) {		// 若为叶子结点
+		if (head->left == NULL || head->right == NULL) {		// 若为叶子结点
 			fputc((char)(head->c), outfile);
 			if (head->c == '\n') {
 				fflush(outfile);
