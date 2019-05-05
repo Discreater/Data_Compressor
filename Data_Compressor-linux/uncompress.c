@@ -59,7 +59,7 @@ void decode(node * head, int extra_len) {
 	// 增加一字节缓冲，以便处理最后一字节
 	int ch, cht;
 	node* root = head;
-	cht = getchar();
+	cht = fgetc(infile);
 	ch = cht;
 	int i, bit0;
 	while ((cht = fgetc(infile)) != EOF) {
