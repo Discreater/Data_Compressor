@@ -195,13 +195,13 @@ int main(int argc, char** argv) {
 
 long long read_data(int* arr)
 {
-	long long count = 0, err_count = 0;
+	long long count = 0;
 	int ch;
 	uchar tc;
 	while ((ch = fgetc(infile)) != EOF) {
 		tc = (uchar)(char)ch;
 		if (tc >= maxCharsNum || tc < 0u) {
-			fprintf(stderr, "ERROR: wrong char %d\n", err_count++);
+			fprintf(stderr, "Error: wrong char.\n");
 			exit(-1);
 		}
 		count++;
@@ -260,7 +260,7 @@ void output_compressed_content(data_buffer*symbols) {
 	}
 	fflush(outfile);				// 清空缓冲区
 	if (console_print) {
-		printf("Size of output file:\t%d B\n", tnum);
+		printf("Size of output file:\t%lld B\n", tnum);
 	}
 }
 
