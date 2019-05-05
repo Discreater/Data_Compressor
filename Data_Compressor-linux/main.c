@@ -30,7 +30,8 @@ void output_compressed_content(data_buffer* symbols);	// 输出
 void output_extra_bit_len(data_buffer* symbols, int* table);	// 计算最后一个缓冲区的位数，并输出
 void output_mode_content(struct stat* state);
 
-void printhelp();
+void Hello(void);
+void printhelp(void);
 
 int main(int argc, char** argv) {
 	clock_t start, end;
@@ -78,6 +79,10 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	if (console_print) {
+		Hello();
+	}
+
 	if (file_from_stdin) {
 		fprintf(stderr, "Error: no input file!\n");
 		exit(-1);
@@ -99,12 +104,13 @@ int main(int argc, char** argv) {
 			}
 		}
 		if (access(out_file_name, 0) == 0) {
-			printf("--Output file('%s') has existed. Do you want to cover it?([Y]/n):", out_file_name);
+			printf("-Output file('%s') has existed. Do you want to cover it?([Y]/n):", out_file_name);
 			int yn;
 			yn = getchar();
 			if (yn != 'y' && yn != 'Y') {
 				exit(-1);
 			}
+			printf("\n");
 		}
 		if (console_print) {
 			printf("Default output file: '%s'\n\n", out_file_name);
@@ -112,6 +118,9 @@ int main(int argc, char** argv) {
 	}
 
 	if(compress){
+		if (console_print) {
+			printf("********** Compress **********\n\n");
+		}
 		// 打开输入输出文件
 		if ((infile = fopen(in_file_name, "rb")) == NULL) {
 			fprintf(stderr, "Error: can't open '%s'\n", in_file_name);
@@ -128,6 +137,10 @@ int main(int argc, char** argv) {
 			fprintf(stderr, "Error: read file(%s) attribute error.\n", in_file_name);
 		}
 
+		if (console_print) {
+			printf("reading...\n");
+		}
+
 		int num_of_char_table[maxCharsNum] = { 0 }; // 存储每个字符的数量
 		long long  tnum;							// 字符总数
 		tnum = read_data(num_of_char_table);		// 读取数据
@@ -141,10 +154,6 @@ int main(int argc, char** argv) {
 		int ar[maxEncodeLength];					// 符号生成数组，用在遍历huffman树时，存储编码状态
 		head = generate_huffman_tree(num_of_char_table, tnum);
 
-		if (console_print) {
-			printf("Generate huffman tree succeed.\n");
-		}
-
 		data_buffer symbols[maxCharsNum];			// 符号表
 		int si = 0;
 		for (si = 0; si < maxCharsNum; si++) {		// 初始化符号表
@@ -154,11 +163,6 @@ int main(int argc, char** argv) {
 	 	avg_code_len = generate_symbole_table(head, ar, symbols);	// 通过huffman树生成符号表, 并写入文件
 		output_extra_bit_len(symbols, num_of_char_table);	// 将最后一个缓冲区的位数写入文件
 		output_mode_content(&state);							// 将文件权限信息写入文件
-
-		if (console_print) {
-			printf("Generate symbol table succeed.\n\n");
-			printf("Write file head succeed.\n");
-		}
 
 		if (console_print) {
 			int symbcount = 0;
@@ -188,16 +192,21 @@ int main(int argc, char** argv) {
 		if ((infile = fopen(in_file_name, "rb")) == NULL) {
 			fprintf(stderr, "Error: can't open %s\n", in_file_name);
 		}
-		
+		if (console_print) {
+			printf("reading...\n");
+		}
 		output_compressed_content(symbols);			// 根据符号表，读取输入，输出压缩后的内容
 
 		if (console_print) {
-			printf("Write to output file(%s) succeed.\n\n", out_file_name);
-			printf("Average encode length :\t%lf (per Byte)\n", avg_code_len);
+			printf("Write to output file('%s') succeed.\n\n", out_file_name);
+			printf("Average encode length :\t%lf (per Byte)\n\n", avg_code_len);
 			printf("Compress complete.\n");
 		}
 	}
 	else {
+		if (console_print) {
+			printf("********* DeCompress *********\n\n");
+		}
 		// 打开输入输出文件
 		if ((infile = fopen(in_file_name, "rb")) == NULL) {
 			fprintf(stderr, "Error: can't open '%s'\n", in_file_name);
@@ -227,9 +236,12 @@ int main(int argc, char** argv) {
 		// 释放内存
 		clear_huffman_tree(head);
 	}
-
 	fclose(infile);
 	fclose(outfile);
+	if (console_print) {
+		printf("\n******************************\n\n");
+	}
+
 	end = clock();
 	if (console_print) {
 		printf("Consume time: %lf s\n", (double)(end - start) / CLOCKS_PER_SEC);
@@ -322,6 +334,13 @@ void output_extra_bit_len(data_buffer* symbols, int* table) {
 
 void output_mode_content(struct stat* state) {
 	fprintf(outfile, "%u\n", state->st_mode);
+}
+
+void Hello() {
+	printf("******************************\n");
+	printf("*** DATA COMPRESSOR        ***\n");
+	printf("******************************\n");
+	printf("Base on huffman encode method.\n\n");
 }
 
 void printhelp() {
