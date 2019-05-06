@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "commonp.h"
 #include "decompress.h"
 #include "huffman.h"
 
@@ -11,14 +12,18 @@ node* build_huffman_tree(void)
 {
 	node* head = malloc(sizeof(node));
 	node* nnode = NULL;
+	char ars[45];
 	char ar[maxEncodeLength];
 	int c;
 	char tc;
 	do {
-		fscanf(infile, "%s%d%c", ar, &c, &tc);
+		fscanf(infile, "%s%x%c", ars, &c, &tc);
 		int i;
+		// 64进制转换为2进制
+		trans64DtoBin(ars, ar);
+		
 		node* tmp = head;
-		for (i = 0; ar[i] != '\0'; i++) {
+		for (i = 1; ar[i] != '\0'; i++) {
 			if (ar[i] == '0') {
 				if (head->left == NULL) {
 					nnode = malloc(sizeof(node));

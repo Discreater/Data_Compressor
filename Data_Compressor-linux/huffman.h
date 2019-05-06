@@ -2,8 +2,8 @@
 #define HUFFMAN_H
 
 
-#define maxCharsNum 256u		// ×î´ó×Ö·ûÊı
-#define maxEncodeLength 256		// ×î´ó±àÂë³¤¶È
+#define maxCharsNum 256u		// æœ€å¤§å­—ç¬¦æ•°
+#define maxEncodeLength 256		// æœ€å¤§ç¼–ç é•¿åº¦
 #define LEFT 0
 #define RIGHT 1
 
@@ -15,11 +15,11 @@ typedef struct node node;
 FILE* infile, * outfile;
 
 struct node {
-	node* left;		// ×ó×Ó½Úµã
-	node* right;	// ÓÒ×Ó½Úµã
-	node* next;		// ÓÅÏÈ¶ÓÁĞÖĞÏÂÒ»½Úµã
-	double value;	// ¸ÅÂÊ
-	uchar c;			// µ¥×Ö½Ú×Ö·û
+	node* left;		// å·¦å­èŠ‚ç‚¹
+	node* right;	// å³å­èŠ‚ç‚¹
+	node* next;		// ä¼˜å…ˆé˜Ÿåˆ—ä¸­ä¸‹ä¸€èŠ‚ç‚¹
+	double value;	// æ¦‚ç‡
+	uchar c;			// å•å­—èŠ‚å­—ç¬¦
 };
 
 void node_init(node* nnode, uchar c, double v);
@@ -28,12 +28,12 @@ void node_insert(node ** head, node* ins);
 
 node* pop(node** head);
 
-node* generate_huffman_tree(int* char_table, long long tnum);		// Éú³ÉhuffmanÊ÷£¬·µ»ØÊ÷root½áµã
-double generate_symbole_table(node* head, int* ar, data_buffer* symbols);			// Éú³É·ûºÅ±í
+node* generate_huffman_tree(int* char_table, long long tnum);		// ç”Ÿæˆhuffmanæ ‘ï¼Œè¿”å›æ ‘rootç»“ç‚¹
+double generate_symbole_table(node* head, int* ar, data_buffer* symbols);			// ç”Ÿæˆç¬¦å·è¡¨
 
 
-void travel_huffman_tree(node* fnode, int len, int zo, int* ar, data_buffer* symbols);	// µİ¹é±éÀúhuffmanÊ÷
+void travel_huffman_tree(node* fnode, int len, int zo, int* ar, data_buffer* symbols);	// é€’å½’éå†huffmanæ ‘
 
-void clear_huffman_tree(node* head);					// ÊÍ·ÅÄÚ´æ
+void clear_huffman_tree(node* head);					// é‡Šæ”¾å†…å­˜
 
 #endif

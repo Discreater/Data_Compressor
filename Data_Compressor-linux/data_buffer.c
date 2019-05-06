@@ -1,7 +1,6 @@
 #include "data_buffer.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 int length_in_chars(data_buffer* db)
 {
@@ -10,7 +9,12 @@ int length_in_chars(data_buffer* db)
 
 int length_in_bytes(data_buffer* db)
 {
-	return (int)ceil(db->len / 8.0);
+	if (db->len % 8 == 0) {
+		return db->len / 8;
+	}
+	else {
+		return db->len / 8 + 1;
+	}
 }
 
 void db_insert(data_buffer* oldval, data_buffer* newval, data_buffer* newbuf)

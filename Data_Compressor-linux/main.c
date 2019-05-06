@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-// ceil函数
-#include <math.h>
 // 命令行参数解析
 #include <getopt.h>
 // memset函数
@@ -12,6 +10,7 @@
 // 时间相关
 #include <time.h>
 // 本地头文件
+#include "commonp.h"
 #include "huffman.h"
 #include "data_buffer.h"
 #include "decompress.h"
@@ -26,7 +25,7 @@ typedef unsigned char uchar;
 int console_print = 1;
 
 long long read_data(int* arr);				// 读取输入生成符号表
-void output_compressed_content(data_buffer* symbols);	// 输出
+long long output_compressed_content(data_buffer* symbols);	// 输出
 void output_extra_bit_len(data_buffer* symbols, int* table);	// 计算最后一个缓冲区的位数，并输出
 void output_mode_content(struct stat* state);
 
@@ -151,7 +150,7 @@ int main(int argc, char** argv) {
 
 		// 生成huaffman树
 		node* head = NULL;							// huffman树的根结点
-		int ar[maxEncodeLength];					// 符号生成数组，用在遍历huffman树时，存储编码状态
+		int ar[maxEncodeLength + 1];					// 符号生成数组，用在遍历huffman树时，存储编码状态
 		head = generate_huffman_tree(num_of_char_table, tnum);
 
 		data_buffer symbols[maxCharsNum];			// 符号表
@@ -163,26 +162,24 @@ int main(int argc, char** argv) {
 	 	avg_code_len = generate_symbole_table(head, ar, symbols);	// 通过huffman树生成符号表, 并写入文件
 		output_extra_bit_len(symbols, num_of_char_table);	// 将最后一个缓冲区的位数写入文件
 		output_mode_content(&state);							// 将文件权限信息写入文件
-
+		
+		// 计算符号表所占空间
+		int symbcount = 0;
 		if (console_print) {
-			int symbcount = 0;
+			symbcount = 0;
 			for (si = 0; si < maxCharsNum; si++) {
 				if (symbols[si].len > 0) {
-					symbcount += 2 + symbols[si].len;
-					if (si < 10) {
+					symbcount += 2 + ceild(symbols[si].len, 6);
+					if (si < 16) {
 						symbcount += 1;
 					}
-					else if (si < 100) {
-						symbcount += 2;
-					}
 					else {
-						symbcount += 3;
+						symbcount += 2;
 					}
 				}
 			}
 			symbcount++;
 			symbcount += 4;		// 存储额外位与文件权限所占空间
-			printf("--Size of file head:\t%d B (symbol table with extra bit)\n", symbcount);
 		}
 
 		clear_huffman_tree(head);					// 释放内存
@@ -193,12 +190,16 @@ int main(int argc, char** argv) {
 			fprintf(stderr, "Error: can't open %s\n", in_file_name);
 		}
 		if (console_print) {
-			printf("reading...\n");
+			printf("writing...\n");
 		}
-		output_compressed_content(symbols);			// 根据符号表，读取输入，输出压缩后的内容
+		long long outnum;
+		outnum = output_compressed_content(symbols);			// 根据符号表，读取输入，输出压缩后的内容
 
 		if (console_print) {
 			printf("Write to output file('%s') succeed.\n\n", out_file_name);
+			printf("--Size of input file:\t%lld B\n\n", tnum);
+			printf("--Size of file head:\t%d B (symbol table with extra bit)\n", symbcount);
+			printf("--Size of output file:\t%lld B (include file head)\n\n", outnum + symbcount);
 			printf("Average encode length :\t%lf (per Byte)\n\n", avg_code_len);
 			printf("Compress complete.\n");
 		}
@@ -263,13 +264,10 @@ long long read_data(int* arr)
 		count++;
 		arr[tc]++;
 	}
-	if (console_print) {
-		printf("--Size of input file:\t%lld B\n", count);
-	}
 	return count;
 }
 
-void output_compressed_content(data_buffer*symbols) {
+long long output_compressed_content(data_buffer*symbols) {
 	long long tnum = 0;
 	// 缓冲需要输出的内容
 	data_buffer* temp = malloc(sizeof(data_buffer));
@@ -315,9 +313,7 @@ void output_compressed_content(data_buffer*symbols) {
 		free(newbuf);
 	}
 	fflush(outfile);				// 清空缓冲区
-	if (console_print) {
-		printf("--Size of output file:\t%lld B\n", tnum);
-	}
+	return tnum;
 }
 
 void output_extra_bit_len(data_buffer* symbols, int* table) {

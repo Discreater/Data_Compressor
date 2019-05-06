@@ -35,12 +35,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="commonp.c" />
     <ClCompile Include="data_buffer.c" />
     <ClCompile Include="huffman.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="decompress.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="commonp.h" />
     <ClInclude Include="data_buffer.h" />
     <ClInclude Include="huffman.h" />
     <ClInclude Include="decompress.h" />
