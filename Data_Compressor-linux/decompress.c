@@ -63,10 +63,12 @@ int get_extra_bit_len(void) {
 }
 
 void determine_mode(char* file_name) {
-	unsigned mode;
-	char tmp;
-	fscanf(infile, "%u%c", &mode, &tmp);
-	if (chmod(file_name, mode) == -1) {
+	union file_mode mod;
+	int i;
+	for (i = 0; i < 4; i++) {
+		mod.buf[i] = fgetc(infile);
+	}
+	if (chmod(file_name, mod.mode) == -1) {
 		// 失败
 		fprintf(stderr, "Error: set mode error.\n");
 	}

@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
 				}
 			}
 			symbcount++;
-			symbcount += 4;		// 存储额外位与文件权限所占空间
+			symbcount += 2 + 4;		// 额外位与文件权限所占空间
 		}
 
 		clear_huffman_tree(head);					// 释放内存
@@ -284,7 +284,7 @@ long long output_compressed_content(data_buffer*symbols) {
 			fprintf(stderr, "Error: wrong char.\n");
 			exit(-1);
 		}
-		// 若缓冲区溢出，则输出，并将newbuf内容移至temp, 清空newbuf
+		// 若data_buffer溢出，则输出，并将newbuf内容移至temp, 清空newbuf
 		if (newbuf->len != 0) {
 			int k;
 			for (k = 0; k < length_in_bytes(temp); k++) {
@@ -295,10 +295,10 @@ long long output_compressed_content(data_buffer*symbols) {
 			db_copy(temp, newbuf);
 			db_flush(newbuf);
 		}
-		// 插入至缓冲区
+		// 插入至新data_buffer
 		db_insert(temp, symbols + tc, newbuf);
 	}
-	// 输出未满的缓冲区
+	// 输出未满的data_buffer
 	if (temp->len != 0) {
 		int k;
 		for (k = 0; k < length_in_bytes(temp); k++) {
@@ -329,7 +329,12 @@ void output_extra_bit_len(data_buffer* symbols, int* table) {
 
 
 void output_mode_content(struct stat* state) {
-	fprintf(outfile, "%u\n", state->st_mode);
+	union file_mode mod;
+	mod.mode = state->st_mode;
+	int i;
+	for (i = 0; i < 4; i++) {
+		fputc(mod.buf[i], outfile);
+	}
 }
 
 void Hello() {
