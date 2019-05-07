@@ -199,7 +199,7 @@ int main(int argc, char** argv) {
 			printf("Write to output file('%s') succeed.\n\n", out_file_name);
 			printf("--Size of input file:\t%lld B\n\n", tnum);
 			printf("--Size of file head:\t%d B (symbol table with extra bit)\n", symbcount);
-			printf("--Size of output file:\t%lld B (include file head)\n\n", outnum + symbcount);
+			printf("--Size of output file:\t%lld B = %lld B + %d B (include file head)\n\n", outnum + symbcount, outnum, symbcount);
 			printf("Average encode length :\t%lf (per Byte)\n\n", avg_code_len);
 			printf("Compress complete.\n");
 		}
