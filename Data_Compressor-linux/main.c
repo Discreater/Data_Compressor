@@ -201,6 +201,7 @@ int main(int argc, char** argv) {
 			printf("--Size of file head:\t%d B (symbol table with extra bit)\n", symbcount);
 			printf("--Size of output file:\t%lld B = %lld B + %d B (include file head)\n\n", outnum + symbcount, outnum, symbcount);
 			printf("Average encode length :\t%lf (per Byte)\n\n", avg_code_len);
+			printf("Compression ratio:\t%lf (Uncompressed/Compressed)\n\n", (double)(tnum) / (outnum + symbcount));
 			printf("Compress complete.\n");
 		}
 	}
